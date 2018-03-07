@@ -1,0 +1,3 @@
+rootProject.name = 'Cliq'
+
+include ':app'
