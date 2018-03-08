@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, View, Image, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Alert } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Alert, AsyncStorage } from 'react-native';
 
 import fb from '../FirebaseConfig';
 
@@ -27,7 +27,10 @@ export default class LoginPage extends React.Component {
     let password = this.state.PasswordText;
     let nav = this.props.navigation;
     fb.auth().signInWithEmailAndPassword(email, password).then(function(user){
-      // Alert.alert("logged in", 'user has been logged in', [{text: 'OK', onPress: () => console.log('OK Pressed')}], { cancelable: false });
+      AsyncStorage.setItem('UID', user.uid);
+      AsyncStorage.getItem('UID').then(function(item){
+        console.log(item);
+      });
       nav.navigate('Me');
     }).catch(function(error) {
       Alert.alert("Something's wrong here", error.message, [{text: 'OK', onPress: () => console.log('OK Pressed')}], { cancelable: false });

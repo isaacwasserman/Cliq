@@ -1,6 +1,8 @@
 import React from 'react';
 import { Animated, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 
+import SOCButton from './SOCButton'
+
 export default class DiscoverPageUser extends React.Component {
   state = {
     Name: this.props.User.Name,

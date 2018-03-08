@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, View, Image, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, StatusBar, Alert, FlatList, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, StatusBar, Alert, FlatList, TouchableWithoutFeedback, AsyncStorage } from 'react-native';
 
 import Touchable from 'react-native-touchable-safe';
 
@@ -21,6 +21,9 @@ export default class DiscoverPage extends React.Component {
     super(props);
     this.handler = this.handler.bind(this);
     this.UserSearch = this.UserSearch.bind(this);
+    AsyncStorage.getItem('UID').then(function(UserUID){
+      this.setState({UserUID: UserUID});
+    }.bind(this));
   }
 
   handler(data) {
@@ -31,16 +34,19 @@ export default class DiscoverPage extends React.Component {
     this.setState({SearchText: text});
     let page = this;
     if(text != '' ){
-      index.search({ query: text, hitsPerPage: 3, }, function searchDone(err, content) {
+      index.search({ query: text, hitsPerPage: 4, }, function searchDone(err, content) {
         if (err) {
           console.error(err);
           return;
         }
-
+        let filteredHits = [];
         for (var h in content.hits) {
-          console.log(JSON.stringify(content.hits[h]));
+          if(content.hits[h].objectID != page.state.UserUID){
+            console.log(content.hits[h]);
+            filteredHits.push(content.hits[h]);
+          }
         }
-        page.setState({AutoCompleteListData: content.hits});
+        page.setState({AutoCompleteListData: filteredHits.splice(0, 3)});
       });
     }
     else {
@@ -69,10 +75,11 @@ export default class DiscoverPage extends React.Component {
             <TextInput style={styles.SearchInput} ref={component => this._SearchInput = component} onChangeText={(text) => this.UserSearch(text)} placeholder={'Search...'}/>
             <FlatList keyboardShouldPersistTaps={'always'} style={styles.AutoCompleteContainer} data={this.state.AutoCompleteListData} keyExtractor={(item, index) => item.Name} renderItem={({item}) => <AutocompleteOption User={item} parentState={this.handler} parentNavigation={this.props.navigation}/>}/>
           </View>
-          {/*<View style={styles.NearbyContainer}>
+          <View style={styles.NearbyContainer}>
             <Text style={styles.NearbyHeader}>Nearby</Text>
-            <FlatList style={styles.NearbyList} data={this.testData} keyExtractor={(item, index) => item.objectID} renderItem={({item}) => <DiscoverPageUser User={item}/>}/>
-          </View>*/}
+            <Text>coming soon...</Text>
+            {/*<FlatList style={styles.NearbyList} data={this.testData} keyExtractor={(item, index) => item.objectID} renderItem={({item}) => <DiscoverPageUser User={item}/>}/>*/}
+          </View>
         </ScrollView>
       </View>
     );
