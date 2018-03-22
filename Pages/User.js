@@ -1,12 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView, FlatList, TouchableOpacity } from 'react-native';
 
 import SOCButton from '../Components/SOCButton';
+import RecentPOV from '../Components/RecentPOV';
 import ImageLoad from 'react-native-image-placeholder';
 import Touchable from 'react-native-touchable-safe'
 
 import fb from '../FirebaseConfig';
+
+import algoliasearch from 'algoliasearch/reactnative';
+var client = algoliasearch('KWELHTLEC3', 'd61f683228ca54c031f62eac964cd904');
+var index = client.initIndex('POVS');
 
 export default class UserPage extends React.Component {
   state = {
@@ -17,19 +22,48 @@ export default class UserPage extends React.Component {
       ProfilePicUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Default_profile_picture_%28male%29_on_Facebook.jpg/600px-Default_profile_picture_%28male%29_on_Facebook.jpg',
       POVCount: '...',
       UID: null
-    }
+    },
+    FollowButtonText: 'Follow +',
+    FollowButtonFunction: this.Follow,
+    RecentPOVS: []
   }
 
   componentWillMount(){
     if(this.props.navigation.state.params != null){
       let User = this.props.navigation.state.params.User;
       this.setState({User: User});
+      this.FetchRecentPOVS(User);
     }
   }
 
   constructor(props){
     super(props);
     this.Review = this.Review.bind(this);
+    this.Follow = this.Follow.bind(this);
+    this.FetchRecentPOVS = this.FetchRecentPOVS.bind(this);
+  }
+
+  FetchRecentPOVS(User){
+    let page = this;
+    console.log(User)
+    index.search({ query: User.UID, hitsPerPage: 3, }, function searchDone(err, content) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      else {
+        console.log(content.hits);
+        page.setState({RecentPOVS: content.hits});
+      }
+    });
+  }
+
+  LogOut(){
+    fb.auth().signOut().then(function() {
+      // Sign-out successful.
+    }).catch(function(error) {
+      Alert.alert("Something's wrong here", error.message, [{text: 'OK', onPress: () => console.log('OK Pressed')}], { cancelable: false });
+    });
   }
 
   static navigationOptions = {
@@ -50,6 +84,16 @@ export default class UserPage extends React.Component {
 
   Review(){
     this.props.navigation.navigate('Review', {User: this.state.User});
+  }
+
+  Follow(){
+    this.setState({FollowButtonText: 'Unfollow'});
+    this.setState({FollowButtonFunction: this.Unfollow});
+  }
+
+  Unfollow(){
+    this.setState({FollowButtonText: 'Follow +'});
+    this.setState({FollowButtonFunction: this.Follow});
   }
 
   render() {
@@ -76,9 +120,16 @@ export default class UserPage extends React.Component {
         right: 0
       }
     });
+    let assets = {
+      CancelButton: require('../Resources/Images/CancelButton.png'),
+      BackArrow: require('../Resources/Images/Back.png')
+    }
     return (
       <View style={styles.Page}>
         <View style={styles.TitleBar}>
+          <TouchableOpacity style={styles.CancelButton} onPress={() => this.props.navigation.goBack()}>
+            <Image style={styles.CancelButtonImage} source={assets.BackArrow}/>
+          </TouchableOpacity>
           <Text style={styles.TitleText} numberOfLines={1}>{this.state.User.Name}</Text>
         </View>
         <ScrollView contentContainerStyle={styles.ScrollContainer}>
@@ -109,28 +160,13 @@ export default class UserPage extends React.Component {
                 <Touchable style={styles.ActionButton} onPress={this.Review}>
                   <Text style={styles.ActionButtonLabel}>Review</Text>
                 </Touchable>
+                <Touchable style={styles.ActionButton}>
+                  <Text style={styles.ActionButtonLabel} onPress={this.Follow}>{this.state.FollowButtonText}</Text>
+                </Touchable>
               </View>
               <View style={styles.RecentSection}>
                 <Text style={styles.RecentLabel}>Recent:</Text>
-                <SOCButton>
-                <View style={styles.RecentPOV}>
-                  <View style={styles.RecentPOVProfilePicContainer}>
-                    <Image style={styles.RecentPOVProfilePic} source={{uri:'https://pbs.twimg.com/profile_images/824476541384097793/qGw1Whej.jpg'}}/>
-                    <Text style={styles.RecentPOVUserRating}>4.0</Text>
-                  </View>
-                  <View style={styles.RecentPOVInfoContainer}>
-                    <Text style={styles.RecentPOVUser}>Jack Kalina</Text>
-                    <View style={styles.RecentPOVStars}>
-                        <View style={styles.FullStarsContainer}>
-                          <Image style={styles.FullStars} source={StarShape.Full}/>
-                          <View style={StarMaskStyle.RecentPOVStarMask}></View>
-                        </View>
-                        <Image style={styles.EmptyStars} source={StarShape.Empty}/>
-                    </View>
-                    <Text style={styles.RecentPOVTimestamp} numberOfLines={1}>February 2nd, 12:14 PM</Text>
-                  </View>
-                </View>
-                </SOCButton>
+                <FlatList style={styles.ListContainer} data={this.state.RecentPOVS} keyExtractor={(item, index) => item.Timestamp} renderItem={({item}) => <RecentPOV POV={item}/>}/>
               </View>
             </View>
           </View>
@@ -142,6 +178,7 @@ export default class UserPage extends React.Component {
 
 const styles = StyleSheet.create({
   ScrollContainer: {
+    marginTop: -55
   },
   LogOutButton: {
     height: 50,
@@ -162,7 +199,6 @@ const styles = StyleSheet.create({
     flex: 1
   },
   ProfilePic: {
-    // top:-50,
     width:175,
     height:175,
     borderRadius: 5
@@ -170,19 +206,33 @@ const styles = StyleSheet.create({
   TitleBar: {
     width: '100%',
     backgroundColor: '#1daeff',
-    marginBottom: -60,
-    zIndex: 5,
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   TitleText: {
     fontSize: 30,
     fontFamily: 'Helvetica',
     fontWeight: 'bold',
     color: 'white',
+    marginVertical:20,
+    top: 5,
+    marginRight:50,
+    maxWidth: '100%',
+    alignSelf: 'center',
+    textAlign: 'center',
+    flex: 1,
+  },
+  CancelButton: {
+    height: 20,
+    width: 11,
+    alignSelf: 'flex-start',
     marginVertical:30,
     top: 5,
     marginHorizontal:20,
-    maxWidth: '100%',
-    textAlign: 'center'
+  },
+  CancelButtonImage: {
+    height: '100%',
+    width: '100%',
   },
   PageBody: {
     // top:-50,
@@ -276,7 +326,7 @@ const styles = StyleSheet.create({
   },
   ActionButtonContainer: {
     width: '100%',
-    height: 75,
+    height: 45,
     marginVertical: 15,
     paddingHorizontal: '10%',
     flexDirection: 'row'
@@ -285,18 +335,18 @@ const styles = StyleSheet.create({
     flex: 1,
     height: '100%',
     backgroundColor: '#1daeff',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginHorizontal: 10
   },
   ActionButtonLabel: {
     color: 'white',
     fontFamily: 'Helvetica',
-    fontSize: 48,
+    fontSize: 24,
     fontWeight: 'bold',
     alignSelf: 'center'
   },
   RecentSection: {
     width:'100%',
-    height:350,
     padding: 20,
     marginTop: -15
   },
@@ -356,5 +406,5 @@ const styles = StyleSheet.create({
     top: 10,
     color: '#636363',
     fontSize:15
-  }
+  },
 });

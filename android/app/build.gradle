@@ -137,6 +137,9 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-spinkit')
+    compile project(':react-native-mauron85-background-geolocation')
+    compile project(':react-native-background-geolocation')
     compile project(':react-native-mauron85-background-geolocation')
     compile project(':react-native-background-geolocation')
     compile fileTree(dir: "libs", include: ["*.jar"])

@@ -33,44 +33,15 @@ export default class FeedPOV extends React.Component {
     }.bind(this));
   }
 
-  TimeString(epoch){
-    let d = new Date(0);
-    d.setUTCSeconds(epoch);
-    let fullString = d.toString();
-    let splitString = fullString.split(' ');
-    let time = splitString[4];
-    let splitTime = time.split(':');
-    let timeInts = {hour:parseInt(splitTime[0]), minute:parseInt(splitTime[1])};
-    let timeSuffix = 'AM';
-    if(timeInts.hour >= 12){
-      let timeSuffix = 'PM';
-      if(timeInts.hour > 12){
-        timeInts.hour -= 12;
-      }
-    }
-    let finalTime = timeInts.hour + ':' + splitTime[1];
-    let finalString = splitString[0] + ' ' + splitString[1] + ' ' + splitString[2] + ' ' + finalTime + ' ' + timeSuffix;
-    return finalString;
-  }
-
   componentWillMount(){
     this.GETProfile();
     this.GETFromProfile();
   }
 
   render() {
-    // let POV = {
-    //   from: this.state.fromProfile,
-    //   to: this.state.toProfile,
-    //   stars: this.props.POV.Stars,
-    //   timestamp: this.TimeString(this.props.POV.Timestamp),
-    //   StarMaskPercentage: (100 - (((this.props.POV.Stars)/5) * 100)) + "%"
-    // };
     let StarMaskWidth = {
         width: (100 - (((this.props.POV.Stars)/5) * 100)) + "%"
     };
-
-    // let toProfilePicImageSource = {uri:POV.to.ProfilePicUrl};
 
     return (
       <View style={styles.FeedEntry}>
@@ -87,7 +58,7 @@ export default class FeedPOV extends React.Component {
           <Image style={styles.EmptyStars} source={StarShape.Empty}/>
         </View>
         <Text style={styles.FeedEntryText}>from {this.state.fromProfile.Name}</Text>
-        <Text style={styles.FeedEntryTimestamp}>{this.props.POV.timestamp}</Text>
+        <Text style={styles.FeedEntryTimestamp}>{new Date(this.props.POV.Timestamp).toDateString()}</Text>
       </View>
     );
   }

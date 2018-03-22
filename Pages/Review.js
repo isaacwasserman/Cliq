@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, View, Image, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, StatusBar, Alert, FlatList, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, StatusBar, Alert, FlatList, TouchableWithoutFeedback, AsyncStorage, ActivityIndicator } from 'react-native';
 
 import fb from '../FirebaseConfig';
 
@@ -43,14 +43,9 @@ export default class ReviewPage extends React.Component {
     this.ClearSearch = this.ClearSearch.bind(this);
     this.UpdateStars = this.UpdateStars.bind(this);
     this.Review = this.Review.bind(this);
-    this.Escape = this.Escape.bind(this);
-    fb.auth().onAuthStateChanged(function(From) {
-      if(From == null){
-        console.log('not logged in');
-      }
-      else {
-        this.setState({FromUID: From.uid});
-      }
+    AsyncStorage.getItem('UID').then(function(UserUID){
+      this.setState({UserUID: UserUID});
+      this.setState({FromUID: UserUID});
     }.bind(this));
   }
 
@@ -73,11 +68,14 @@ export default class ReviewPage extends React.Component {
           console.error(err);
           return;
         }
-
+        let filteredHits = [];
         for (var h in content.hits) {
-          page.setState({AutoCompleteListData: content.hits});
+          if(content.hits[h].objectID != page.state.UserUID){
+            console.log(content.hits[h]);
+            filteredHits.push(content.hits[h]);
+          }
         }
-        console.log(content.hits);
+        page.setState({AutoCompleteListData: filteredHits.splice(0, 3)});
       });
     }
     else {
@@ -101,10 +99,6 @@ export default class ReviewPage extends React.Component {
     this.setState({StarScore: num});
   }
 
-  Escape(){
-    this.props.navigation.goBack();
-  }
-
   Review(){
     if(this.state.ToUser.UID != null){
       let CurrentPOVCount = this.state.ToUser.POVCount;
@@ -121,22 +115,27 @@ export default class ReviewPage extends React.Component {
         From: this.state.FromUID,
         To: this.state.ToUser.UID,
         Stars: ThisReviewStars,
-        Timestamp: new Date().getTime()
+        Timestamp: new Date().getTime(),
       }
 
       let NewPOVRef = fb.database().ref('POVS/').push();
       NewPOVRef.set(NewPOV);
 
-      let UserRef = fb.database().ref('Users/' + this.state.ToUser.UID);
+      let ToUserRef = fb.database().ref('Users/' + this.state.ToUser.UID);
+      let FromUserRef = fb.database().ref('Users/' + NewPOV.From);
       let Updates = {Stars: NewStarCount, POVCount: NewPOVCount};
       let navigate = this.props.navigation.navigate;
-      UserRef.update(Updates).then(function(){
-        fetch('https://cliq-search-update.herokuapp.com/update').then(function(response){
-          if(response){
-            console.log('Posted!');
-            navigate('Feed');
-          }
-        }.bind(this));
+      ToUserRef.update(Updates).then(function(){
+        ToUserRef.child('ReceivedPOVS').push().set(NewPOV).then(function(){
+          FromUserRef.child('SentPOVS').push().set(NewPOV).then(function(){
+            fetch('https://cliq-search-update.herokuapp.com/update').then(function(response){
+              if(response){
+                console.log('Posted!');
+                navigate('Feed');
+              }
+            }.bind(this));
+          });
+        });
       });
     }
   }
@@ -153,9 +152,6 @@ export default class ReviewPage extends React.Component {
         <StatusBar barStyle="light-content"/>
         <View style={styles.TitleBar}>
           <Text style={styles.TitleText} numberOfLines={1}>New POV</Text>
-          <TouchableOpacity style={styles.CancelButton} onPress={this.Escape}>
-            <Image style={styles.CancelButtonImage} source={assets.CancelButton}/>
-          </TouchableOpacity>
         </View>
         <ScrollView style={styles.PageBody} keyboardShouldPersistTaps={'always'}>
           <View style={styles.WhoContainer}>

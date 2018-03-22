@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View, Image } from 'react-native';
 
 import { StackNavigator, TabNavigator } from 'react-navigation';
 
@@ -12,6 +12,7 @@ import ProfilePicUploaderPage from './Pages/ProfilePicUploader'
 import FeedPage from './Pages/FeedPage'
 import MePage from './Pages/MePage'
 import ReviewPage from './Pages/Review'
+import EasterEggPage from './Pages/EasterEgg'
 
 console.disableYellowBox = true;
 
@@ -22,13 +23,11 @@ const Tabs = TabNavigator({
       screen: FeedPage,
       navigationOptions: {
         tabBarLabel:"Feed",
+        tabBarIcon: () => { return <Image style={{ width: 50, height: 50 }} source={{uri: 'https://facebook.github.io/react/img/logo_og.png'}}/>}
       }
     },
     Discover: {
       screen: DiscoverPage,
-      navigationOptions: {
-        tabBarLabel:"Discover",
-      }
     },
     Review: {
       screen: ReviewPage,
@@ -43,6 +42,24 @@ const Tabs = TabNavigator({
       }
     },
   },
+  {
+    initialRouteName: 'Me',
+    tabBarOptions: {
+      allowFontScaling: true,
+      showIcon: true,
+      showLabel: true,
+      pressColor: '#000000',
+      iconStyle: {
+          width: 22,
+          height: 22
+      },
+      style: {
+          // backgroundColor: '#000000',
+          elevation: 2,
+      },
+      indicatorStyle: {  backgroundColor: '#FFF' }
+    }
+  }
 );
 
 const RootStack = StackNavigator(
@@ -63,6 +80,9 @@ const RootStack = StackNavigator(
     },
     User: {
       screen: UserPage,
+    },
+    EasterEgg: {
+      screen: EasterEggPage,
     },
   },
   {

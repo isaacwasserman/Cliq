@@ -3,6 +3,9 @@ package com.cliq;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.react.rnspinkit.RNSpinkitPackage;
+import com.marianhello.react.BackgroundGeolocationPackage;
+import com.transistorsoft.rnbackgroundgeolocation.RNBackgroundGeolocation;
 import com.marianhello.react.BackgroundGeolocationPackage;
 import com.transistorsoft.rnbackgroundgeolocation.RNBackgroundGeolocation;
 import com.facebook.react.ReactNativeHost;
@@ -25,6 +28,9 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNSpinkitPackage(),
+            new BackgroundGeolocationPackage(),
+            new RNBackgroundGeolocation(),
             new BackgroundGeolocationPackage(),
             new RNBackgroundGeolocation()
       );

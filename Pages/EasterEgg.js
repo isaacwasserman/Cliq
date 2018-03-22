@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, Text, View, Image, ScrollView, TextInput, TouchableOpacity, WebView} from 'react-native';
 
-export default class EasterEgg extends React.Component {
+export default class EasterEggPage extends React.Component {
   state = {
   }
 
@@ -12,9 +12,12 @@ export default class EasterEgg extends React.Component {
 
   render() {
     return (
-      <WebView
-        source={{uri: 'https://google.com'}}
-      />
+      // <WebView
+      //   source={{uri: 'https://google.com'}}
+      // />
+      <Text style={{fontSize: 56}}>
+        You are a degenerate.
+      </Text>
     );
   }
 }

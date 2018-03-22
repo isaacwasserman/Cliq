@@ -1,17 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, AsyncStorage, FlatList } from 'react-native';
 
 import SOCButton from '../Components/SOCButton';
+import RecentPOV from '../Components/RecentPOV';
 import ImageLoad from 'react-native-image-placeholder';
 
 import fb from '../FirebaseConfig';
 
-export default class Me extends React.Component {
+import algoliasearch from 'algoliasearch/reactnative';
+var client = algoliasearch('KWELHTLEC3', 'd61f683228ca54c031f62eac964cd904');
+var index = client.initIndex('POVS');
 
+export default class Me extends React.Component {
+  static navigationOptions = {
+    tabBarIcon: ({ tintColor }) => (<Image source={require('../Resources/Images/TabBar Icons_Me.png')} style={{height: 20, width: 20}} />)
+  }
   constructor(props){
     super(props);
     this.LogOut = this.LogOut.bind(this);
+    this.FetchRecentPOVS = this.FetchRecentPOVS.bind(this);
 
     let nav = this.props.navigation;
     let state = this;
@@ -26,6 +34,24 @@ export default class Me extends React.Component {
       }
       else {
         nav.navigate('Login');
+      }
+    });
+    AsyncStorage.getItem('UID').then(function(UserUID){
+      this.setState({UserUID: UserUID});
+      this.FetchRecentPOVS();
+    }.bind(this));
+  }
+
+  FetchRecentPOVS(){
+    let page = this;
+    index.search({ query: page.state.UserUID, hitsPerPage: 3, }, function searchDone(err, content) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      else {
+        console.log(content.hits);
+        page.setState({RecentPOVS: content.hits});
       }
     });
   }
@@ -71,7 +97,7 @@ export default class Me extends React.Component {
       Empty: require('../Resources/Images/Images_No-Stars.png')
     };
     let StarMaskPercentage = (100 * (1 - (this.state.User.Stars/5.0))) + "%";
-    console.log(StarMaskPercentage);
+
     let StarMaskStyle = StyleSheet.create({
       StarMask: {
         height: '100%',
@@ -119,25 +145,7 @@ export default class Me extends React.Component {
               </View>
               <View style={styles.RecentSection}>
                 <Text style={styles.RecentLabel}>Recent:</Text>
-                <SOCButton>
-                <View style={styles.RecentPOV}>
-                  <View style={styles.RecentPOVProfilePicContainer}>
-                    <Image style={styles.RecentPOVProfilePic} source={{uri:'https://pbs.twimg.com/profile_images/824476541384097793/qGw1Whej.jpg'}}/>
-                    <Text style={styles.RecentPOVUserRating}>4.0</Text>
-                  </View>
-                  <View style={styles.RecentPOVInfoContainer}>
-                    <Text style={styles.RecentPOVUser}>Jack Kalina</Text>
-                    <View style={styles.RecentPOVStars}>
-                        <View style={styles.FullStarsContainer}>
-                          <Image style={styles.FullStars} source={StarShape.Full}/>
-                          <View style={StarMaskStyle.RecentPOVStarMask}></View>
-                        </View>
-                        <Image style={styles.EmptyStars} source={StarShape.Empty}/>
-                    </View>
-                    <Text style={styles.RecentPOVTimestamp} numberOfLines={1}>February 2nd, 12:14 PM</Text>
-                  </View>
-                </View>
-                </SOCButton>
+                <FlatList style={styles.ListContainer} data={this.state.RecentPOVS} keyExtractor={(item, index) => item.Timestamp} renderItem={({item}) => <RecentPOV POV={item}/>}/>
               </View>
               <TouchableOpacity style={styles.LogOutButton} onPress={this.LogOut}><Text style={styles.LogOutButtonText}>Log Out</Text></TouchableOpacity>
             </View>
@@ -284,7 +292,6 @@ const styles = StyleSheet.create({
   },
   RecentSection: {
     width:'100%',
-    height:350,
     padding: 20,
     marginTop: -15
   },

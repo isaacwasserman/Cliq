@@ -98,17 +98,16 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
   },
   PageBody: {
-    top:20,
     backgroundColor:'#FFFFFF',
     width:'100%',
     zIndex:0,
-    paddingVertical: 0,
     paddingHorizontal: 15,
     flexDirection: 'column',
     alignItems: 'center',
     flex: 1,
   },
   ListContainer: {
+    paddingVertical: 20,
     width: '100%',
     height:'100%',
   }
