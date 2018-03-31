@@ -25,28 +25,60 @@ const Tabs = TabNavigator({
       screen: FeedPage,
       navigationOptions: {
         tabBarLabel:"Feed",
-        tabBarIcon: () => { return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Feed.png')}/>}
+        tabBarIcon: ({focused, tintColor}) => {
+          let suffix = '_Unfocused'
+          if(focused){
+            return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Feed.png')}/>
+          }
+          else {
+            return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Feed_Unfocused.png')}/>
+          }
+        }
       }
     },
     Discover: {
       screen: DiscoverPage,
       navigationOptions: {
         tabBarLabel:"Discover",
-        tabBarIcon: () => { return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Discover.png')}/>}
+        tabBarIcon: ({focused, tintColor}) => {
+          let suffix = '_Unfocused'
+          if(focused){
+            return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Discover.png')}/>
+          }
+          else {
+            return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Discover_Unfocused.png')}/>
+          }
+        }
       }
     },
     Review: {
       screen: ReviewPage,
       navigationOptions: {
         tabBarLabel:"Review",
-        tabBarIcon: () => { return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Review.png')}/>}
+        tabBarIcon: ({focused, tintColor}) => {
+          let suffix = '_Unfocused'
+          if(focused){
+            return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Review.png')}/>
+          }
+          else {
+            return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Review_Unfocused.png')}/>
+          }
+        }
       }
     },
     Me: {
       screen: MePage,
       navigationOptions: {
         tabBarLabel:"Me",
-        tabBarIcon: () => { return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Me.png')}/>}
+        tabBarIcon: ({focused, tintColor}) => {
+          let suffix = '_Unfocused'
+          if(focused){
+            return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Me.png')}/>
+          }
+          else {
+            return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Me_Unfocused.png')}/>
+          }
+        }
       }
     },
   },
@@ -56,11 +88,7 @@ const Tabs = TabNavigator({
       allowFontScaling: true,
       showIcon: true,
       showLabel: true,
-      pressColor: '#000000',
-      iconStyle: {
-          width: 22,
-          height: 22
-      },
+      activeTintColor: '#1daeff',
       style: {
           // backgroundColor: '#000000',
           elevation: 2,
