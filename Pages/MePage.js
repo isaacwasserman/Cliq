@@ -13,9 +13,7 @@ var client = algoliasearch('KWELHTLEC3', 'd61f683228ca54c031f62eac964cd904');
 var index = client.initIndex('POVS');
 
 export default class Me extends React.Component {
-  static navigationOptions = {
-    tabBarIcon: ({ tintColor }) => (<Image source={require('../Resources/Images/TabBar Icons_Me.png')} style={{height: 20, width: 20}} />)
-  }
+  
   constructor(props){
     super(props);
     this.LogOut = this.LogOut.bind(this);

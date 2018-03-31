@@ -18,27 +18,35 @@ console.disableYellowBox = true;
 
 type Props = {};
 
+let TabIconSize = 25
+
 const Tabs = TabNavigator({
     Feed: {
       screen: FeedPage,
       navigationOptions: {
         tabBarLabel:"Feed",
-        tabBarIcon: () => { return <Image style={{ width: 50, height: 50 }} source={{uri: 'https://facebook.github.io/react/img/logo_og.png'}}/>}
+        tabBarIcon: () => { return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Feed.png')}/>}
       }
     },
     Discover: {
       screen: DiscoverPage,
+      navigationOptions: {
+        tabBarLabel:"Discover",
+        tabBarIcon: () => { return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Discover.png')}/>}
+      }
     },
     Review: {
       screen: ReviewPage,
       navigationOptions: {
         tabBarLabel:"Review",
+        tabBarIcon: () => { return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Review.png')}/>}
       }
     },
     Me: {
       screen: MePage,
       navigationOptions: {
         tabBarLabel:"Me",
+        tabBarIcon: () => { return <Image style={{ width: TabIconSize, height: TabIconSize, resizeMode: 'contain' }} source={require('./Resources/Images/TabBar_Icons_Me.png')}/>}
       }
     },
   },

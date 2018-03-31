@@ -24,7 +24,6 @@ export default class UserPage extends React.Component {
       UID: null
     },
     FollowButtonText: 'Follow +',
-    FollowButtonFunction: this.Follow,
     RecentPOVS: []
   }
 
@@ -39,7 +38,7 @@ export default class UserPage extends React.Component {
   constructor(props){
     super(props);
     this.Review = this.Review.bind(this);
-    this.Follow = this.Follow.bind(this);
+    this.FollowButtonFunction = this.FollowButtonFunction.bind(this);
     this.FetchRecentPOVS = this.FetchRecentPOVS.bind(this);
   }
 
@@ -86,14 +85,14 @@ export default class UserPage extends React.Component {
     this.props.navigation.navigate('Review', {User: this.state.User});
   }
 
-  Follow(){
-    this.setState({FollowButtonText: 'Unfollow'});
-    this.setState({FollowButtonFunction: this.Unfollow});
-  }
-
-  Unfollow(){
-    this.setState({FollowButtonText: 'Follow +'});
-    this.setState({FollowButtonFunction: this.Follow});
+  FollowButtonFunction(){
+    if(this.state.FollowButtonText == 'Follow +'){
+      this.setState({FollowButtonText: 'Unfollow'});
+      
+    }
+    else if(this.state.FollowButtonText == 'Unfollow'){
+      this.setState({FollowButtonText: 'Follow +'});
+    }
   }
 
   render() {
@@ -160,8 +159,8 @@ export default class UserPage extends React.Component {
                 <Touchable style={styles.ActionButton} onPress={this.Review}>
                   <Text style={styles.ActionButtonLabel}>Review</Text>
                 </Touchable>
-                <Touchable style={styles.ActionButton}>
-                  <Text style={styles.ActionButtonLabel} onPress={this.Follow}>{this.state.FollowButtonText}</Text>
+                <Touchable style={styles.ActionButton} onPress={this.FollowButtonFunction}>
+                  <Text style={styles.ActionButtonLabel}>{this.state.FollowButtonText}</Text>
                 </Touchable>
               </View>
               <View style={styles.RecentSection}>
